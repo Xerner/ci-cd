@@ -37,7 +37,7 @@ runs:
   steps:
     - uses: actions/checkout@v6
       with:
-        submodules: true
+        submodules: 'recursive'
 
     - name: Get current spec version
       id: current-spec-version
@@ -50,7 +50,7 @@ runs:
         CURRENT_UP_SPEC_VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "")
         if [ -z "$CURRENT_UP_SPEC_VERSION" ]; then
           echo "No tag found at up-spec commit $UP_SPEC_COMMIT_HASH, using nearest tagged commit hash"
-          NEAREST_UP_SPEC_VERSION=$(git describe --tags --abbrev=0)
+          NEAREST_UP_SPEC_VERSION=$(git tag --sort=-creatordate | head -n 1)
           CURRENT_UP_SPEC_VERSION=$NEAREST_UP_SPEC_VERSION.$UP_SPEC_COMMIT_HASH
           echo "nearest tag and its commit hash: $CURRENT_UP_SPEC_VERSION"
         else
