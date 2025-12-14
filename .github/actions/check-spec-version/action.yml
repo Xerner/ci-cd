@@ -43,22 +43,20 @@ runs:
       id: current-spec-version
       shell: bash
       run: |
-        UP_SPEC_COMMIT=$(git ls-tree HEAD ${{ inputs.submodule-path }} | awk '{print $3}')
-        echo "Up-spec submodule is at commit: $UP_SPEC_COMMIT"
         cd ${{ inputs.submodule-path }}
+        UP_SPEC_COMMIT_HASH=$(git rev-parse --short HEAD)
+        echo "Up-spec submodule is at commit: $UP_SPEC_COMMIT_HASH"
         git fetch --tags
         CURRENT_UP_SPEC_VERSION=$(git describe --tags --exact-match 2>/dev/null || echo "")
         if [ -z "$CURRENT_UP_SPEC_VERSION" ]; then
-          echo "No tag found at up-spec commit $UP_SPEC_COMMIT, using nearest tagged commit hash"
-          CURRENT_UP_SPEC_VERSION=$(git rev-parse --short HEAD)
+          echo "No tag found at up-spec commit $UP_SPEC_COMMIT_HASH, using nearest tagged commit hash"
           NEAREST_UP_SPEC_VERSION=$(git describe --tags --abbrev=0)
-          CURRENT_UP_SPEC_VERSION=$NEAREST_UP_SPEC_VERSION.$CURRENT_UP_SPEC_VERSION
+          CURRENT_UP_SPEC_VERSION=$NEAREST_UP_SPEC_VERSION.$UP_SPEC_COMMIT_HASH
           echo "nearest tag and its commit hash: $CURRENT_UP_SPEC_VERSION"
-          echo "current_up_spec_version=$CURRENT_UP_SPEC_VERSION" >> $GITHUB_OUTPUT
         else
           echo "Current commit is tagged as: $CURRENT_UP_SPEC_VERSION"
-          echo "current_up_spec_version=$CURRENT_UP_SPEC_VERSION" >> $GITHUB_OUTPUT
         fi
+        echo "current_up_spec_version=$CURRENT_UP_SPEC_VERSION" >> $GITHUB_OUTPUT
 
     - name: Get latest spec version
       id: latest-spec-version
